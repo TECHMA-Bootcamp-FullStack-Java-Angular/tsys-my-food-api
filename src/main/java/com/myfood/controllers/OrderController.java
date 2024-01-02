@@ -55,7 +55,6 @@ public class OrderController {
      * @param page The page number (default is 0).
      * @param size The number of orders per page (default is 10).
      * @return ResponseEntity containing a paginated list of {@link OrderUserDTO}.
-     * @see OrderService#getAllOrdersWithPagination(Pageable)
      */
     @Transactional
     @Operation(summary = "Endpoint for ADMIN", security = @SecurityRequirement(name = "bearerAuth"))
@@ -81,7 +80,6 @@ public class OrderController {
      * @param id The unique identifier of the order.
      * @return ResponseEntity containing the details of the order as an {@link OrderUserDTO}.
      * @throws DataNotFoundException If the specified order does not exist.
-     * @see OrderService#getOneOrder(Long)
      */
 	@Operation(summary = "Endpoint for ADMIN", security = @SecurityRequirement(name = "bearerAuth"))
     @PreAuthorize("hasRole('ADMIN')")
@@ -103,7 +101,6 @@ public class OrderController {
      * @param entity The order details provided in the request body.
      * @return ResponseEntity containing the details of the created order as an {@link OrderUserDTO}.
      * {@link OrderUserDTO} and returned in the ResponseEntity with status 200 (OK).
-     * @see OrderService#createOrder(Order)
      */
 	@Operation(summary = "Endpoint for ADMIN", security = @SecurityRequirement(name = "bearerAuth"))
     @PreAuthorize("hasRole('ADMIN')")
@@ -121,8 +118,6 @@ public class OrderController {
      * @param entity The updated order details provided in the request body.
      * @return ResponseEntity containing a message and the details of the updated
      *         order as an {@link OrderUserDTO}.
-     * @see OrderService#getOneOrder(Long)
-     * @see OrderService#updateOrder(Long, Order)
      */
 	@Operation(summary = "Endpoint for ADMIN", security = @SecurityRequirement(name = "bearerAuth"))
     @PreAuthorize("hasRole('ADMIN')")
@@ -143,8 +138,6 @@ public class OrderController {
      *
      * @param id The identifier of the order to be deleted.
      * @return ResponseEntity indicating the success or failure of the delete operation.
-     * @see OrderService#getOneOrder(Long)
-     * @see OrderService#deleteOrder(Long)
      */
 	@Transactional
 	@Operation(summary = "Endpoint for ADMIN", security = @SecurityRequirement(name = "bearerAuth"))
@@ -173,10 +166,6 @@ public class OrderController {
      * @param page The page number for pagination (default is 0).
      * @param size The number of orders per page (default is 8).
      * @return ResponseEntity containing a paginated list of OrderCookDTO objects.
-     * @see OrderService#getAllOrdersForCook()
-     * @see OrderController#mapToOrderCookDTO(Order)
-     * @see OrderController#paginate(List, Pageable)
-     * @see OrderCookDTO
      */
 	@Transactional
 	@Operation(summary = "Endpoint for CHEF and ADMIN", security = @SecurityRequirement(name = "bearerAuth"))
@@ -238,9 +227,6 @@ public class OrderController {
      * @param size   The number of orders per page (default is 10).
      * @param userId The ID of the user for whom to retrieve orders.
      * @return ResponseEntity containing a paginated list of OrderUserDTO objects.
-     * @see UserService#getOneUser(Long)
-     * @see OrderService#getAllOrdersForUserId(Long)
-     * @see OrderUserDTO
      */
 	@Operation(summary = "Endpoint for USER", security = @SecurityRequirement(name = "bearerAuth"))
     @GetMapping("/orders/{userId}")
@@ -267,11 +253,7 @@ public class OrderController {
      * for CHEFF
      *
      * @param id The ID of the order to be marked as "maked."
-     * @return ResponseEntity containing the updated OrderUserDTO after marking the
-     *         order as "maked."
-     * @see OrderService#getOneOrder(Long)
-     * @see OrderService#updateOrder(Order)
-     * @see OrderUserDTO
+     * @return ResponseEntity containing the updated OrderUserDTO after marking the order as "maked."
      */
 	@Operation(summary = "Endpoint for CHEF and ADMIN", security = @SecurityRequirement(name = "bearerAuth"))
     @PreAuthorize("hasRole('CHEF') or hasRole('ADMIN')")
@@ -297,12 +279,6 @@ public class OrderController {
      * @param slotId  The ID of the slot to be associated with the order.
      * @return ResponseEntity containing the updated OrderUserDTO after updating the
      *         order slot and confirming it.
-     * @see OrderService#getOneOrder(Long)
-     * @see SlotService#getOneSlot(Long)
-     * @see OrderService#updateOrder(Order)
-     * @see SlotService#updateSlot(Slot)
-     * @see #calculateTotalPrice(Order)
-     * @see OrderUserDTO
      */
 	@Transactional
 	@Operation(summary = "Endpoint for USER", security = @SecurityRequirement(name = "bearerAuth"))
@@ -352,22 +328,26 @@ public class OrderController {
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
         
-        List<Dish> menuDishes = listOrders.stream()
-                .map(listOrder -> listOrder.getMenu())
-                .filter(Objects::nonNull)
-                .flatMap(menu -> Arrays
-                        .asList(menu.getAppetizer(), menu.getFirst(), menu.getSecond(), menu.getDessert()).stream())
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+//        List<Dish> menuDishes = listOrders.stream()
+//                .map(listOrder -> listOrder.getMenu())
+//                .filter(Objects::nonNull)
+//                .flatMap(menu -> Arrays
+//                        .asList(menu.getAppetizer(), menu.getFirst(), menu.getSecond(), menu.getDessert()).stream())
+//                .filter(Objects::nonNull)
+//                .collect(Collectors.toList());
         
-        List<Dish> allDishes = new ArrayList<>(menuDishes);
-        allDishes.addAll(dishes);
+//        List<Dish> allDishes = new ArrayList<>(menuDishes);
+//        allDishes.addAll(dishes);
       
-        Double totalPrice = allDishes.stream()
-                .mapToDouble(Dish::getPrice)
-                .sum();
+        Double totalPriceDishes = dishes.stream()
+        		.mapToDouble(Dish::getPrice)
+        		.sum();
         
-        return totalPrice;
+        Double totalPriceMenus = listOrders.stream()
+        		.mapToDouble(listOrder -> listOrder.getMenu().getPrice())
+        		.sum();
+        
+        return totalPriceDishes + totalPriceMenus;
     }
     
     
@@ -415,11 +395,7 @@ public class OrderController {
      * Creates and saves a new order for the specified user. It's for the USER
      *
      * @param userId The ID of the user for whom the order is created.
-     * @return ResponseEntity containing the OrderUserDTO representing the newly
-     *         created order.
-     * @see UserService#getOneUser(Long)
-     * @see OrderService#createOrder(Order)
-     * @see OrderUserDTO
+     * @return ResponseEntity containing the OrderUserDTO representing the newly created order.
      */
 	@Operation(summary = "Endpoint for USER", security = @SecurityRequirement(name = "bearerAuth"))
     @PostMapping("/order/{userId}")

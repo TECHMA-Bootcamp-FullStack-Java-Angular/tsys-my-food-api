@@ -22,6 +22,8 @@ public class Menu {
 	@Column(name = "id")
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
+	
+	private Double price;
 
 	@ManyToOne
 	@JoinColumn(name = "appetizer_id", referencedColumnName = "id", nullable = false)
@@ -53,14 +55,15 @@ public class Menu {
 	public Menu() {
 	}
 
-	public Menu(Long id, Dish appetizer, Dish first, Dish second, Dish dessert, boolean visible) {
-		super();
+	public Menu(Long id, Dish appetizer, Dish first, Dish second, Dish dessert, boolean visible , double price) {
+		
 		this.id = id;
 		this.appetizer = appetizer;
 		this.first = first;
 		this.second = second;
 		this.dessert = dessert;
 		this.visible = visible;
+		this.price = price;
 	}
 
 	public Long getId() {
@@ -111,10 +114,19 @@ public class Menu {
 		this.visible = visible;
 	}
 
-	@Override
-	public String toString() {
-		return "Menu [id=" + id + ", appetizer=" + appetizer + ", first=" + first + ", second=" + second + ", dessert="
-				+ dessert + ", visible=" + visible + "]";
+
+	/**
+	 * @return the price
+	 */
+	public Double getPrice() {
+		return price;
+	}
+
+	/**
+	 * @param price the price to set
+	 */
+	public void setPrice(Double price) {
+		this.price = price;
 	}
 	
 }
