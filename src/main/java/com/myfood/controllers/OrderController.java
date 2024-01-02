@@ -347,7 +347,7 @@ public class OrderController {
         		.mapToDouble(listOrder -> listOrder.getMenu().getPrice())
         		.sum();
         
-        return totalPriceDishes + totalPriceMenus;
+        return (totalPriceDishes + totalPriceMenus) / 2;
     }
     
     
