@@ -323,10 +323,10 @@ public class OrderController {
     	
         List<ListOrder> listOrders = order.getListOrder();
         
-        List<Dish> dishes = listOrders.stream()
-                .map(ListOrder::getDish)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+//        List<Dish> dishes = listOrders.stream()
+//                .map(ListOrder::getDish)
+//                .filter(Objects::nonNull)
+//                .collect(Collectors.toList());
         
 //        List<Dish> menuDishes = listOrders.stream()
 //                .map(listOrder -> listOrder.getMenu())
@@ -339,8 +339,8 @@ public class OrderController {
 //        List<Dish> allDishes = new ArrayList<>(menuDishes);
 //        allDishes.addAll(dishes);
       
-        Double totalPriceDishes = dishes.stream()
-        		.mapToDouble(Dish::getPrice)
+        Double totalPriceDishes = listOrders.stream()
+        		.mapToDouble(listOrder -> listOrder.getDish().getPrice())
         		.sum();
         
         Double totalPriceMenus = listOrders.stream()
