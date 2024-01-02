@@ -56,7 +56,6 @@ public class OrderController {
      * @param size The number of orders per page (default is 10).
      * @return ResponseEntity containing a paginated list of {@link OrderUserDTO}.
      */
-    @Transactional
     @Operation(summary = "Endpoint for ADMIN", security = @SecurityRequirement(name = "bearerAuth"))
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/orders")
@@ -168,9 +167,8 @@ public class OrderController {
      * @param size The number of orders per page (default is 8).
      * @return ResponseEntity containing a paginated list of OrderCookDTO objects.
      */
-	@Transactional
 	@Operation(summary = "Endpoint for CHEF and ADMIN", security = @SecurityRequirement(name = "bearerAuth"))
-	@PreAuthorize("hasRole('ADMIN')or hasRole('CHEF')")
+    @PreAuthorize("hasRole('CHEF') or hasRole('ADMIN')")
     @GetMapping("/orders/chef")
     public ResponseEntity<Page<OrderCookDTO>> getAllOrdersForChef(
             @RequestParam(defaultValue = "0") int page,
