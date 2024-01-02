@@ -58,6 +58,7 @@ public class OrderController {
      */
     @Transactional
     @Operation(summary = "Endpoint for ADMIN", security = @SecurityRequirement(name = "bearerAuth"))
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/orders")
     public ResponseEntity<Page<OrderCookDTO>> getAllOrdersWithDish(
             @RequestParam(defaultValue = "0") int page,
@@ -169,6 +170,7 @@ public class OrderController {
      */
 	@Transactional
 	@Operation(summary = "Endpoint for CHEF and ADMIN", security = @SecurityRequirement(name = "bearerAuth"))
+	@PreAuthorize("hasRole('ADMIN')or hasRole('CHEF')")
     @GetMapping("/orders/chef")
     public ResponseEntity<Page<OrderCookDTO>> getAllOrdersForChef(
             @RequestParam(defaultValue = "0") int page,
