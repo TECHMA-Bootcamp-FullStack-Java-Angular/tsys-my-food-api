@@ -20,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 
 import com.myfood.dto.Dish;
 import com.myfood.dto.ListOrder;
@@ -73,6 +74,7 @@ public class OrderController {
                 .map(this::mapToOrderCookDTOWithDishes)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(new PageImpl<>(orderCookDTOList, pageable, filteredOrders.size()));
+        
     }
 
     /**
@@ -172,19 +174,18 @@ public class OrderController {
 	@Operation(summary = "Endpoint for CHEF and ADMIN", security = @SecurityRequirement(name = "bearerAuth"))
     @PreAuthorize("hasRole('CHEF') or hasRole('ADMIN')")
     @GetMapping("/orders/chef")
-    public ResponseEntity<Page<OrderCookDTO>> getAllOrdersForChef(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "8") int size) {
+    public ResponseEntity<Page<OrderCookDTO>> getAllOrdersForChef(@PageableDefault(size = 10, page = 0, sort = "id")
+	Pageable pageable) {
         List<Order> ordersForCook = orderService.getAllOrdersForCook();
         List<Order> filteredOrders = ordersForCook.stream()
                 .filter(order -> order.getActualDate() != null)
                 .collect(Collectors.toList());
-        Pageable pageable = PageRequest.of(page, size);
+      
         Page<Order> paginatedOrders = paginate(filteredOrders, pageable);
         List<OrderCookDTO> orderCookDTOList = paginatedOrders.getContent().stream()
                 .map(this::mapToOrderCookDTOWithDishes)
                 .collect(Collectors.toList());
-        return ResponseEntity.ok(new PageImpl<>(orderCookDTOList, pageable, filteredOrders.size()));
+       return ResponseEntity.ok(new PageImpl<>(orderCookDTOList, pageable, filteredOrders.size()));
     }
 
     private OrderCookDTO mapToOrderCookDTOWithDishes(Order order) {
