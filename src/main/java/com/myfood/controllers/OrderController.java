@@ -160,46 +160,35 @@ public class OrderController {
     }
 	
 	
-	
-
-    /**
-     * Retrieves a paginated list of orders suitable for a cook, including
-     * associated dishes. It's for CHEF
-     *
-     * @param page The page number for pagination (default is 0).
-     * @param size The number of orders per page (default is 8).
-     * @return ResponseEntity containing a paginated list of OrderCookDTO objects.
-     */
 	@Transactional
 	@Operation(summary = "Endpoint for CHEF and ADMIN", security = @SecurityRequirement(name = "bearerAuth"))
-//    @PreAuthorize("hasRole('CHEF') or hasRole('ADMIN')")
     @GetMapping("/orders/chef")
-    public ResponseEntity<List<OrderCookDTO>> getAllOrdersForChef(){
+    public ResponseEntity<Page<OrderCookDTO>> getAllOrdersForChef(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "8") int size) {
         List<Order> ordersForCook = orderService.getAllOrdersForCook();
         List<Order> filteredOrders = ordersForCook.stream()
                 .filter(order -> order.getActualDate() != null)
                 .collect(Collectors.toList());
-      
-        List<OrderCookDTO> orderCookDTOList = filteredOrders.stream()
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Order> paginatedOrders = paginate(filteredOrders, pageable);
+        List<OrderCookDTO> orderCookDTOList = paginatedOrders.getContent().stream()
                 .map(this::mapToOrderCookDTOWithDishes)
                 .collect(Collectors.toList());
-       return ResponseEntity.ok(orderCookDTOList);
+        return ResponseEntity.ok(new PageImpl<>(orderCookDTOList, pageable, filteredOrders.size()));
     }
 
     private OrderCookDTO mapToOrderCookDTOWithDishes(Order order) {
         OrderCookDTO orderCookDTO = new OrderCookDTO();
-        
         orderCookDTO.setOrderId(order.getId());
         orderCookDTO.setMaked(order.isMaked());
         orderCookDTO.setSlot(order.getSlot());
         orderCookDTO.setActualDate(order.getActualDate());
         orderCookDTO.setTotalPrice(order.getTotalPrice());
-        
         List<ListOrder> listOrders = order.getListOrder();
         List<Dish> dishDTOList = listOrders.stream()
                 .map(this::mapToListOrderDishDTO)
                 .collect(Collectors.toList());
-        
         for (ListOrder listOrder : listOrders) {
             if (listOrder.getMenu() != null) {
                 dishDTOList.addAll(Arrays.asList(
