@@ -174,31 +174,32 @@ public class OrderController {
 	@Operation(summary = "Endpoint for CHEF and ADMIN", security = @SecurityRequirement(name = "bearerAuth"))
 //    @PreAuthorize("hasRole('CHEF') or hasRole('ADMIN')")
     @GetMapping("/orders/chef")
-    public ResponseEntity<Page<OrderCookDTO>> getAllOrdersForChef(@PageableDefault(size = 10, page = 0, sort = "id")
-	Pageable pageable) {
+    public ResponseEntity<List<OrderCookDTO>> getAllOrdersForChef(){
         List<Order> ordersForCook = orderService.getAllOrdersForCook();
         List<Order> filteredOrders = ordersForCook.stream()
                 .filter(order -> order.getActualDate() != null)
                 .collect(Collectors.toList());
       
-        Page<Order> paginatedOrders = paginate(filteredOrders, pageable);
-        List<OrderCookDTO> orderCookDTOList = paginatedOrders.getContent().stream()
+        List<OrderCookDTO> orderCookDTOList = filteredOrders.stream()
                 .map(this::mapToOrderCookDTOWithDishes)
                 .collect(Collectors.toList());
-       return ResponseEntity.ok(new PageImpl<>(orderCookDTOList, pageable, filteredOrders.size()));
+       return ResponseEntity.ok(orderCookDTOList);
     }
 
     private OrderCookDTO mapToOrderCookDTOWithDishes(Order order) {
         OrderCookDTO orderCookDTO = new OrderCookDTO();
+        
         orderCookDTO.setOrderId(order.getId());
         orderCookDTO.setMaked(order.isMaked());
         orderCookDTO.setSlot(order.getSlot());
         orderCookDTO.setActualDate(order.getActualDate());
         orderCookDTO.setTotalPrice(order.getTotalPrice());
+        
         List<ListOrder> listOrders = order.getListOrder();
         List<Dish> dishDTOList = listOrders.stream()
                 .map(this::mapToListOrderDishDTO)
                 .collect(Collectors.toList());
+        
         for (ListOrder listOrder : listOrders) {
             if (listOrder.getMenu() != null) {
                 dishDTOList.addAll(Arrays.asList(
