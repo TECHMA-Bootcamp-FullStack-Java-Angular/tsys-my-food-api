@@ -172,7 +172,7 @@ public class OrderController {
      */
 	@Transactional
 	@Operation(summary = "Endpoint for CHEF and ADMIN", security = @SecurityRequirement(name = "bearerAuth"))
-    @PreAuthorize("hasRole('CHEF') or hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('CHEF') or hasRole('ADMIN')")
     @GetMapping("/orders/chef")
     public ResponseEntity<Page<OrderCookDTO>> getAllOrdersForChef(@PageableDefault(size = 10, page = 0, sort = "id")
 	Pageable pageable) {
