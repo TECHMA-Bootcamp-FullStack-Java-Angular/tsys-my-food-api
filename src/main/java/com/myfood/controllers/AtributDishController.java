@@ -214,16 +214,17 @@ public class AtributDishController {
     }
 	
     /**
-		 * Update an existing attribute-dish relationship associated with a dish.
-		 *
-		 * This endpoint requires ADMIN role for access.
-		 *
-		 * @param id The ID of the dish associated with the attribute.
-		 * @param entity The updated attribute-dish relationship.
-		 * @return ResponseEntity containing the updated attribute-dish relationship or an error response if the attribute is invalid.
-		 */
-		@Operation(summary = "Endpoint ADMIN", security = @SecurityRequirement(name = "bearerAuth"))
-	  @PreAuthorize("hasRole('ADMIN')")
+	 * Update an existing attribute-dish relationship associated with a dish.
+	 *
+	 * This endpoint requires ADMIN role for access.
+	 *
+	 * @param id     The ID of the dish associated with the attribute.
+	 * @param entity The updated attribute-dish relationship.
+	 * @return ResponseEntity containing the updated attribute-dish relationship or
+	 *         an error response if the attribute is invalid.
+	 */
+    @Operation(summary = "Endpoint ADMIN", security = @SecurityRequirement(name = "bearerAuth"))
+	@PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/atribut/{dish_id}")
     public ResponseEntity<?> updateAtribut_Dish(@PathVariable(name = "dish_id") Long id, @RequestBody Atribut_Dish entity) {
         Map<String, Object> rest = new HashMap<>();

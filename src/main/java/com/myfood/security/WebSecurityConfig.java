@@ -139,7 +139,7 @@ public class WebSecurityConfig {
 	        "/swagger-ui.html",
 	        "/v3/api-docs/**",
 	        "/swagger-ui/**",
-	        "/myfood.up.railway.app/"        
+	        "/tsys-my-food-api-production.up.railway.app/api/v1/orders/cook"
 	};
 	
  	
