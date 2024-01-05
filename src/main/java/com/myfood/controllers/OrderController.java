@@ -92,7 +92,7 @@ public class OrderController {
 	@Transactional
 	@Operation(summary = "Endpoint for CHEF and ADMIN", security = @SecurityRequirement(name = "bearerAuth"))
 	@PreAuthorize("hasRole('ADMIN') or hasRole('CHEF')")
-    @GetMapping("/orders/chef")
+    @GetMapping("/orders/cook")
     public ResponseEntity<Page<OrderCookDTO>> getAllOrdersForChef(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "8") int size) {
