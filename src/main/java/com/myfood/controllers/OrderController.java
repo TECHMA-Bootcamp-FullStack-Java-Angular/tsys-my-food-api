@@ -76,6 +76,37 @@ public class OrderController {
         return ResponseEntity.ok(new PageImpl<>(orderCookDTOList, pageable, filteredOrders.size()));
         
     }
+	
+    /**
+     * Retrieves a paginated list of orders suitable for a cook, including
+     * associated dishes. It's for CHEF
+     *
+     * @param page The page number for pagination (default is 0).
+     * @param size The number of orders per page (default is 8).
+     * @return ResponseEntity containing a paginated list of OrderCookDTO objects.
+     * @see OrderService#getAllOrdersForCook()
+     * @see OrderController#mapToOrderCookDTO(Order)
+     * @see OrderController#paginate(List, Pageable)
+     * @see OrderCookDTO
+     */
+	@Transactional
+	@Operation(summary = "Endpoint for CHEF and ADMIN", security = @SecurityRequirement(name = "bearerAuth"))
+	@PreAuthorize("hasRole('ADMIN') or hasRole('CHEF')")
+    @GetMapping("/orders/chef")
+    public ResponseEntity<Page<OrderCookDTO>> getAllOrdersForChef(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "8") int size) {
+        List<Order> ordersForCook = orderService.getAllOrdersForCook();
+        List<Order> filteredOrders = ordersForCook.stream()
+                .filter(order -> order.getActualDate() != null)
+                .collect(Collectors.toList());
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Order> paginatedOrders = paginate(filteredOrders, pageable);
+        List<OrderCookDTO> orderCookDTOList = paginatedOrders.getContent().stream()
+                .map(this::mapToOrderCookDTOWithDishes)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(new PageImpl<>(orderCookDTOList, pageable, filteredOrders.size()));
+    }
 
     /**
      * Retrieves details of a specific order identified by its ID. It's for the ADMIN
@@ -160,23 +191,7 @@ public class OrderController {
     }
 	
 	
-	@Transactional
-	@Operation(summary = "Endpoint for CHEF and ADMIN", security = @SecurityRequirement(name = "bearerAuth"))
-    @GetMapping("/orders/chef")
-    public ResponseEntity<Page<OrderCookDTO>> getAllOrdersForChef(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "8") int size) {
-        List<Order> ordersForCook = orderService.getAllOrdersForCook();
-        List<Order> filteredOrders = ordersForCook.stream()
-                .filter(order -> order.getActualDate() != null)
-                .collect(Collectors.toList());
-        Pageable pageable = PageRequest.of(page, size);
-        Page<Order> paginatedOrders = paginate(filteredOrders, pageable);
-        List<OrderCookDTO> orderCookDTOList = paginatedOrders.getContent().stream()
-                .map(this::mapToOrderCookDTOWithDishes)
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(new PageImpl<>(orderCookDTOList, pageable, filteredOrders.size()));
-    }
+
 
     private OrderCookDTO mapToOrderCookDTOWithDishes(Order order) {
         OrderCookDTO orderCookDTO = new OrderCookDTO();

@@ -27,7 +27,9 @@ public class OpenApi30Config {
 	
     @Bean
     OpenAPI customOpenAPI() {
-        return new OpenAPI().addServersItem(new Server().url("https://tsys-my-food-api-production.up.railway.app/"));
+        return new OpenAPI().addServersItem(new Server().url("https://tsys-my-food-api-production.up.railway.app/"))
+        		.addServersItem(new Server().url("http://localhost:8181"));
+        
     }
     
 }
